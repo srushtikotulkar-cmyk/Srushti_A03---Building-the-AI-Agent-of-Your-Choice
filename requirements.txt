@@ -1,0 +1,25 @@
+# Core dependencies for News Digest Agent
+# Updated to avoid compilation issues on Windows
+
+# AI & LLM (using newer versions with pre-built wheels)
+langchain==0.3.0
+langchain-openai==0.2.0
+openai==1.54.0
+
+# News APIs
+newsapi-python==0.2.7
+feedparser==6.0.10
+
+# Data processing
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Email & notifications
+# smtplib is built-in, no installation needed
+
+# Scheduling
+schedule==1.2.0
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2024.1

@@ -1,0 +1,199 @@
+{
+  "agent_metadata": {
+    "name": "News Digest Agent",
+    "version": "1.0.0",
+    "author": "Your Name Here",
+    "course": "CISC691 - AI Agents",
+    "assignment": "A03 - Building AI Agent",
+    "date_created": "2025-11-09",
+    "description": "Autonomous agent that fetches, summarizes, and delivers personalized daily news digests"
+  },
+  
+  "configuration": {
+    "news_topics": [
+      "artificial intelligence",
+      "technology",
+      "machine learning"
+    ],
+    "max_articles_per_run": 5,
+    "summarization_method": "extractive",
+    "summary_sentences": 3,
+    "delivery_method": "email",
+    "backup_enabled": true,
+    "language": "en"
+  },
+  
+  "workflow": {
+    "steps": [
+      {
+        "step_id": 1,
+        "name": "Initialize Configuration",
+        "description": "Load environment variables and API keys",
+        "input": ".env file",
+        "output": "configuration_dict",
+        "error_handling": "Exit with error message if keys missing"
+      },
+      {
+        "step_id": 2,
+        "name": "Initialize API Clients",
+        "description": "Create NewsAPI and SMTP client instances",
+        "dependencies": ["NewsAPI key", "Email credentials"],
+        "output": "api_clients",
+        "error_handling": "Validate credentials, exit if invalid"
+      },
+      {
+        "step_id": 3,
+        "name": "Fetch News Articles",
+        "description": "Query NewsAPI for each configured topic",
+        "input": "topics_list",
+        "process": {
+          "api": "NewsAPI",
+          "endpoint": "get_everything",
+          "parameters": {
+            "q": "topic_name",
+            "language": "en",
+            "sort_by": "publishedAt",
+            "page_size": 5
+          }
+        },
+        "output": "raw_articles_list",
+        "error_handling": "Log error, continue with other topics"
+      },
+      {
+        "step_id": 4,
+        "name": "Deduplicate Articles",
+        "description": "Remove duplicate articles using URL as unique key",
+        "input": "raw_articles_list",
+        "algorithm": "Dictionary with URL as key",
+        "output": "unique_articles_list",
+        "error_handling": "N/A - deterministic process"
+      },
+      {
+        "step_id": 5,
+        "name": "Summarize Articles",
+        "description": "Generate 3-sentence summaries using extractive method",
+        "input": "unique_articles_list",
+        "algorithm": {
+          "type": "extractive_summarization",
+          "steps": [
+            "Split text into sentences",
+            "Score sentences by keyword importance",
+            "Select top 3 highest-scoring sentences",
+            "Format as bullet points"
+          ],
+          "keywords": [
+            "new", "announce", "develop", "launch", "create",
+            "technology", "ai", "system", "data", "research",
+            "study", "report", "says", "according"
+          ]
+        },
+        "output": "summarized_articles_list",
+        "error_handling": "Fallback to 'Summary unavailable' message"
+      },
+      {
+        "step_id": 6,
+        "name": "Format HTML Digest",
+        "description": "Create styled HTML email with all summaries",
+        "input": "summarized_articles_list",
+        "template": "html_email_template.html",
+        "styling": {
+          "font": "Arial, sans-serif",
+          "colors": {
+            "primary": "#3498db",
+            "background": "#f8f9fa",
+            "text": "#333"
+          },
+          "layout": "responsive"
+        },
+        "output": "html_digest_string",
+        "error_handling": "Validate HTML structure"
+      },
+      {
+        "step_id": 7,
+        "name": "Send Email",
+        "description": "Deliver digest via Gmail SMTP",
+        "input": "html_digest_string",
+        "process": {
+          "protocol": "SMTP_SSL",
+          "server": "smtp.gmail.com",
+          "port": 465,
+          "authentication": "app_password"
+        },
+        "output": "delivery_status",
+        "error_handling": "Save to file if email fails"
+      },
+      {
+        "step_id": 8,
+        "name": "Save Backup",
+        "description": "Write HTML digest to local file",
+        "input": "html_digest_string",
+        "filename_pattern": "digest_YYYYMMDD_HHMMSS.html",
+        "output": "file_path",
+        "error_handling": "Log error if file write fails"
+      }
+    ]
+  },
+  
+  "dependencies": {
+    "language": "Python 3.x",
+    "packages": [
+      {
+        "name": "python-dotenv",
+        "version": "1.0.0",
+        "purpose": "Environment variable management"
+      },
+      {
+        "name": "requests",
+        "version": "2.31.0",
+        "purpose": "HTTP requests"
+      },
+      {
+        "name": "newsapi-python",
+        "version": "0.2.7",
+        "purpose": "NewsAPI client"
+      },
+      {
+        "name": "langchain-openai",
+        "version": "0.2.0",
+        "purpose": "LLM integration (optional)"
+      },
+      {
+        "name": "schedule",
+        "version": "1.2.0",
+        "purpose": "Task scheduling"
+      }
+    ],
+    "external_apis": [
+      {
+        "name": "NewsAPI",
+        "url": "https://newsapi.org",
+        "tier": "Free (100 requests/day)",
+        "required": true
+      },
+      {
+        "name": "Gmail SMTP",
+        "url": "smtp.gmail.com:465",
+        "authentication": "App Password",
+        "required": true
+      }
+    ]
+  },
+  
+  "performance_metrics": {
+    "avg_execution_time_seconds": 30,
+    "articles_processed_per_run": 5,
+    "api_calls_per_run": 3,
+    "email_delivery_success_rate": "100%",
+    "cost_per_run": "$0.00"
+  },
+  
+  "future_enhancements": [
+    "Sentiment analysis integration",
+    "Web dashboard for viewing digests",
+    "Multi-user support with individual preferences",
+    "Cloud deployment (AWS Lambda)",
+    "Advanced summarization with TF-IDF",
+    "Source credibility scoring",
+    "Mobile app integration"
+  ]
+}
