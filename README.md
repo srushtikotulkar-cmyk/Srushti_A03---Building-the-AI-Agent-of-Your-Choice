@@ -55,7 +55,7 @@ Data Layer → Processing Layer → Presentation Layer
 
 1. **Clone repository**
 ```bash
-git clone [your-repo-url]
+git clone [(https://github.com/srushtikotulkar-cmyk/Srushti_A03---Building-the-AI-Agent-of-Your-Choice.git)]
 cd news-digest-agent
 ```
 
